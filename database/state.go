@@ -92,13 +92,17 @@ func (s *State) Persist() error {
 	return nil
 }
 
+func (s *State) Close() {
+	s.dbFile.Close()
+}
+
 func (s *State) apply(tx Tx) error {
-	if tx.IsReward {
+	if tx.IsReward() {
 		s.Balances[tx.To] += tx.Value
 		return nil
 	}
 
-	if tx.Value > s.Balances[tx.From] {
+	if s.Balances[tx.From] < tx.Value {
 		return fmt.Errorf("insufficient balance")
 	}
 

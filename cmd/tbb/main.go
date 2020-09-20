@@ -16,9 +16,17 @@ func main() {
 		},
 	}
 
+	tbbCmd.AddCommand(versionCmd)
+	tbbCmd.AddCommand(balancesCmd())
+	tbbCmd.AddCommand(txCmd())
+
 	err := tbbCmd.Execute()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func incorrectUsageErr() error {
+	return fmt.Errorf("incorrect usage")
 }

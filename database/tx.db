@@ -1,5 +1,9 @@
-{"from":"jsrhodes15", "to":"nikkitgh", "value":3,"data":""}
-{"from":"jsrhodes15", "to":"jsrhodes15", "value":700,"data":"reward"}
-{"from":"jsrhodes15", "to":"bjfink", "value":2000,"data":""}
-{"from":"jsrhodes15", "to":"jsrhodes15", "value":100,"data":"reward"}
-{"from":"bjfink", "to":"jsrhodes15", "value":1,"data":""}
+  
+{"from":"jrhodes","to":"jrhodes","value":3,"data":""}
+{"from":"jrhodes","to":"jrhodes","value":700,"data":"reward"}
+{"from":"jrhodes","to":"meads","value":2000,"data":""}
+{"from":"jrhodes","to":"jrhodes","value":100,"data":"reward"}
+{"from":"meads","to":"jrhodes","value":1,"data":""}
+{"from":"meads","to":"lhendriks","value":1000,"data":""}
+{"from":"meads","to":"jrhodes","value":50,"data":""}
+{"from":"jrhodes","to":"jrhodes","value":100,"data":"reward"}
