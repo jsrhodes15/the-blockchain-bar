@@ -2,6 +2,6 @@
     "genesis_time": "2020-09-20T00:00:00.000000000Z",
     "chain_id": "the-blockchain-bar-ledger",
     "balances": {
-        "jsrhodes15": 1000000
+        "jrhodes": 1000000
     }
 }
