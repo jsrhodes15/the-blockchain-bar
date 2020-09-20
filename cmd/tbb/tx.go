@@ -16,12 +16,11 @@ const flagData = "data"
 func txCmd() *cobra.Command {
 	var txsCmd = &cobra.Command{
 		Use:   "tx",
-		Short: "Interact with transactions (add...).",
+		Short: "Interact with txs (add...).",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return incorrectUsageErr()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-
 		},
 	}
 
@@ -40,22 +39,18 @@ func txAddCmd() *cobra.Command {
 			value, _ := cmd.Flags().GetUint(flagValue)
 			data, _ := cmd.Flags().GetString(flagData)
 
-			fromAcc := database.NewAccount(from)
-			toAcc := database.NewAccount(to)
-
-			tx := database.NewTx(fromAcc, toAcc, value, "")
+			tx := database.NewTx(database.NewAccount(from), database.NewAccount(to), value, data)
 
 			state, err := database.NewStateFromDisk()
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
-
 			defer state.Close()
 
 			err = state.Add(tx)
 			if err != nil {
-				fmt.Println(os.Stderr, err)
+				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
 
@@ -65,7 +60,7 @@ func txAddCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			fmt.Println("Transaction successfully added to the ledger.")
+			fmt.Println("TX successfully added to the ledger.")
 		},
 	}
 
@@ -81,5 +76,4 @@ func txAddCmd() *cobra.Command {
 	cmd.Flags().String(flagData, "", "Possible values: 'reward'")
 
 	return cmd
-
 }
