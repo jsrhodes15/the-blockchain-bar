@@ -3,6 +3,7 @@ package database
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -93,6 +94,16 @@ func (s *State) Persist() error {
 
 func (s *State) apply(tx Tx) error {
 	if tx.IsReward {
-		// do something
+		s.Balances[tx.To] += tx.Value
+		return nil
 	}
+
+	if tx.Value > s.Balances[tx.From] {
+		return fmt.Errorf("insufficient balance")
+	}
+
+	s.Balances[tx.From] -= tx.Value
+	s.Balances[tx.To] += tx.Value
+
+	return nil
 }
