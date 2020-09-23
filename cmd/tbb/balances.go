@@ -1,12 +1,10 @@
 package main
 
 import (
+	"github.com/jsrhodes15/the-blockchain-bar/database"
+	"github.com/spf13/cobra"
 	"fmt"
 	"os"
-
-	"github.com/jsrhodes15/the-blockchain-bar/database"
-
-	"github.com/spf13/cobra"
 )
 
 func balancesCmd() *cobra.Command {
@@ -17,7 +15,6 @@ func balancesCmd() *cobra.Command {
 			return incorrectUsageErr()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-
 		},
 	}
 
@@ -33,11 +30,11 @@ var balancesListCmd = &cobra.Command{
 		state, err := database.NewStateFromDisk()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
 		}
-
 		defer state.Close()
 
-		fmt.Println("Accounts balances:")
+		fmt.Printf("Accounts balances at %x:\n", state.LatestSnapshot())
 		fmt.Println("------------------")
 		fmt.Println("")
 

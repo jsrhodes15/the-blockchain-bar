@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
 const Major = "0"
 const Minor = "1"
 const Patch = "0"
-const Description = "TX Add & Balances List"
+const Description = "Immutable Snapshots"
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
