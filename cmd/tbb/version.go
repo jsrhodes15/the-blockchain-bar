@@ -6,9 +6,9 @@ import (
 )
 
 const Major = "0"
-const Minor = "4"
+const Minor = "5"
 const Patch = "0"
-const Description = "Blockchain"
+const Description = "Flexible Datadir"
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
