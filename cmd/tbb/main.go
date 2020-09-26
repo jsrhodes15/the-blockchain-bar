@@ -3,13 +3,24 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
 
 const flagDataDir = "datadir"
+const defaultDataDirname = ".tbb"
+var defaultDataDir string
 
 func main() {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	defaultDataDir = filepath.Join(homeDir, defaultDataDirname)
+
 	var tbbCmd = &cobra.Command{
 		Use:   "tbb",
 		Short: "The Blockchain Bar CLI",
@@ -22,7 +33,7 @@ func main() {
 	tbbCmd.AddCommand(balancesCmd())
 	tbbCmd.AddCommand(txCmd())
 
-	err := tbbCmd.Execute()
+	err = tbbCmd.Execute()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -30,14 +41,13 @@ func main() {
 }
 
 func addDefaultRequiredFlags(cmd *cobra.Command) {
-	cmd.Flags().String(
+	cmd.Flags().StringP(
 		flagDataDir,
-		"",
+		"d",
+		defaultDataDir,
 		"Absolute path where tbb data is stored",
-		)
-	cmd.MarkFlagRequired(flagDataDir)
+	)
 }
-
 
 func incorrectUsageErr() error {
 	return fmt.Errorf("incorrect usage")
