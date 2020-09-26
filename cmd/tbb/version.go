@@ -8,7 +8,7 @@ import (
 const Major = "0"
 const Minor = "5"
 const Patch = "0"
-const Description = "Flexible Datadir"
+const Description = "Flexible DataDir"
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
