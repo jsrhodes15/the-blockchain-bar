@@ -33,7 +33,7 @@ type BlockFS struct {
 	Value Block `json:"block"`
 }
 
-func NewBlock(parent Hash, time uint64, number uint64, txs []Tx) Block {
+func NewBlock(parent Hash, number uint64, time uint64, txs []Tx) Block {
 	return Block{BlockHeader{parent, number,time}, txs}
 }
 
