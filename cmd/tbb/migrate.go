@@ -78,7 +78,7 @@ var migrateCmd = func() *cobra.Command {
 		},
 	}
 
-	addDefaultRequiredFlags(migrateCmd)
+	addDefaultFlags(migrateCmd)
 
 	return migrateCmd
 }

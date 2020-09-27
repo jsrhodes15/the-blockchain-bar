@@ -9,18 +9,23 @@ import (
 )
 
 const flagDataDir = "datadir"
-const defaultDataDirname = ".tbb"
-var defaultDataDir string
+const flagPort = "port"
 
-func main() {
+const defaultDataDirname = ".tbb"
+
+func getDefaultDataDir() string {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	defaultDataDir = filepath.Join(homeDir, defaultDataDirname)
+	defaultDataDir := filepath.Join(homeDir, defaultDataDirname)
 
+	return defaultDataDir
+}
+
+func main() {
 	var tbbCmd = &cobra.Command{
 		Use:   "tbb",
 		Short: "The Blockchain Bar CLI",
@@ -35,18 +40,18 @@ func main() {
 	tbbCmd.AddCommand(txCmd())
 	tbbCmd.AddCommand(runCmd())
 
-	err = tbbCmd.Execute()
+	err := tbbCmd.Execute()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func addDefaultRequiredFlags(cmd *cobra.Command) {
+func addDefaultFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP(
 		flagDataDir,
 		"d",
-		defaultDataDir,
+		getDefaultDataDir(),
 		"Absolute path where tbb data is stored",
 	)
 }
