@@ -19,21 +19,22 @@ func (h *Hash) UnmarshalText(data []byte) error {
 
 type Block struct {
 	Header BlockHeader `json:"header"`
-	TXs []Tx `json:"payload"`
+	TXs    []Tx        `json:"payload"`
 }
 
 type BlockHeader struct {
-	Parent Hash `json:"parent"`
-	Time uint64 `json:"time"`
+	Parent Hash   `json:"parent"`
+	Number uint64 `json:"number"`
+	Time   uint64 `json:"time"`
 }
 
 type BlockFS struct {
-	Key Hash `json:"hash"`
+	Key   Hash  `json:"hash"`
 	Value Block `json:"block"`
 }
 
-func NewBlock(parent Hash, time uint64, txs []Tx) Block {
-	return Block{BlockHeader{parent, time}, txs}
+func NewBlock(parent Hash, time uint64, number uint64, txs []Tx) Block {
+	return Block{BlockHeader{parent, number,time}, txs}
 }
 
 func (b Block) Hash() (Hash, error) {
