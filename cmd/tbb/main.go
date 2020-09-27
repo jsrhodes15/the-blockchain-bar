@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jsrhodes15/the-blockchain-bar/fs"
 	"os"
 	"path/filepath"
 
@@ -14,12 +15,7 @@ const flagPort = "port"
 const defaultDataDirname = ".tbb"
 
 func getDefaultDataDir() string {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-
+	homeDir := fs.GetHomeDir()
 	defaultDataDir := filepath.Join(homeDir, defaultDataDirname)
 
 	return defaultDataDir
@@ -54,6 +50,16 @@ func addDefaultFlags(cmd *cobra.Command) {
 		getDefaultDataDir(),
 		"Absolute path where tbb data is stored",
 	)
+}
+
+func getDataDirFromCmd(cmd *cobra.Command) string {
+	dataDir, err := cmd.Flags().GetString(flagDataDir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	return fs.ExpandPath(dataDir)
 }
 
 func incorrectUsageErr() error {

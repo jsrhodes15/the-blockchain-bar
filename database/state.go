@@ -19,8 +19,6 @@ type State struct {
 }
 
 func NewStateFromDisk(dataDir string) (*State, error) {
-	dataDir = ExpandPath(dataDir)
-
 	err := initDataDirIfNotExists(dataDir)
 	if err != nil {
 		return nil, err
@@ -45,7 +43,7 @@ func NewStateFromDisk(dataDir string) (*State, error) {
 
 	scanner := bufio.NewScanner(f)
 
-	state := &State{balances, make([]Tx, 0), f, Block{},Hash{}}
+	state := &State{balances, make([]Tx, 0), f, Block{}, Hash{}}
 
 	// Iterate over each line in tx.db file (transaction)
 	for scanner.Scan() {

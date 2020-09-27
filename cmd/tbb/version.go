@@ -7,7 +7,7 @@ import (
 
 const Major = "0"
 const Minor = "6"
-const Patch = "0"
+const Patch = "1"
 const Description = "HTTP API"
 
 var versionCmd = &cobra.Command{
