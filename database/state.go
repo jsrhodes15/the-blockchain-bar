@@ -16,6 +16,7 @@ type State struct {
 
 	latestBlock     Block
 	latestBlockHash Hash
+	hasGenesisBlock bool
 }
 
 func NewStateFromDisk(dataDir string) (*State, error) {
@@ -23,13 +24,11 @@ func NewStateFromDisk(dataDir string) (*State, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// start with 'genesis' file
+	// start with a 'genesis' file
 	gen, err := loadGenesis(getGenesisJsonFilePath(dataDir))
 	if err != nil {
 		return nil, err
 	}
-
 	// build a map of balances for easy lookup
 	balances := make(map[Account]uint)
 	for account, balance := range gen.Balances {
@@ -37,7 +36,6 @@ func NewStateFromDisk(dataDir string) (*State, error) {
 	}
 
 	dbFilePath := getBlocksDbFilePath(dataDir)
-
 	f, err := os.OpenFile(dbFilePath, os.O_APPEND|os.O_RDWR, 0600)
 	if err != nil {
 		return nil, err
@@ -45,8 +43,7 @@ func NewStateFromDisk(dataDir string) (*State, error) {
 
 	scanner := bufio.NewScanner(f)
 
-	state := &State{balances, make([]Tx, 0), f, Block{}, Hash{}}
-
+	state := &State{balances, make([]Tx, 0), f, Block{}, Hash{}, false}
 	// Iterate over each line in tx.db file (transaction)
 	for scanner.Scan() {
 		if err := scanner.Err(); err != nil {
@@ -72,6 +69,7 @@ func NewStateFromDisk(dataDir string) (*State, error) {
 
 		state.latestBlock = blockFs.Value
 		state.latestBlockHash = blockFs.Key
+		state.hasGenesisBlock = true
 	}
 
 	return state, nil
@@ -84,12 +82,12 @@ func (s *State) AddBlocks(blocks []Block) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
 func (s *State) AddBlock(b Block) (Hash, error) {
 	pendingState := s.copy()
-
 	// Validate block meta + payload. Replays transactions to verify balances
 	err := applyBlock(b, pendingState)
 	if err != nil {
@@ -110,19 +108,26 @@ func (s *State) AddBlock(b Block) (Hash, error) {
 
 	fmt.Printf("Persisting new Block to disk:\n")
 	fmt.Printf("\t%s\n", blockFsJson)
-
 	// Write to disk
 	_, err = s.dbFile.Write(append(blockFsJson, '\n'))
 	if err != nil {
 		return Hash{}, err
 	}
-
 	// All TXs are valid and no error writing to disk -> update main state
 	s.Balances = pendingState.Balances
 	s.latestBlockHash = blockHash
 	s.latestBlock = b
+	s.hasGenesisBlock = true
 
 	return blockHash, nil
+}
+
+func (s *State) NextBlockNumber() uint64 {
+	if !s.hasGenesisBlock {
+		return uint64(0)
+	}
+
+	return s.LatestBlock().Header.Number + 1
 }
 
 func (s *State) LatestBlock() Block {
@@ -156,24 +161,25 @@ func (s *State) copy() State {
 	return c
 }
 
+// verifies if a block can be added to the blockchain
 // block metadata are verified as well as transactions within (sufficient balances, etc).
 func applyBlock(b Block, s State) error {
 	nextExpectedBlockNumber := s.latestBlock.Header.Number + 1
 
-	if b.Header.Number != nextExpectedBlockNumber {
+	if s.hasGenesisBlock && b.Header.Number != nextExpectedBlockNumber {
 		return fmt.Errorf(
 			"next expected block must be '%d' not '%d'",
 			nextExpectedBlockNumber,
 			b.Header.Number,
-			)
+		)
 	}
 
-	if s.latestBlock.Header.Number > 0 && !reflect.DeepEqual(b.Header.Parent, s.latestBlockHash) {
+	if s.hasGenesisBlock && s.latestBlock.Header.Number > 0 && !reflect.DeepEqual(b.Header.Parent, s.latestBlockHash) {
 		return fmt.Errorf(
 			"next block parent hash must be '%x' not '%x'",
 			s.latestBlockHash,
 			b.Header.Parent,
-			)
+		)
 	}
 
 	return applyTXs(b.TXs, &s)

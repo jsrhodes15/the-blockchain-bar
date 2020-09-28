@@ -18,7 +18,7 @@ func (h *Hash) UnmarshalText(data []byte) error {
 	return err
 }
 
-func (h *Hash) Hex() string {
+func (h Hash) Hex() string {
 	return hex.EncodeToString(h[:])
 }
 
@@ -31,6 +31,15 @@ func (h Hash) IsEmpty() bool {
 type Block struct {
 	Header BlockHeader `json:"header"`
 	TXs    []Tx        `json:"payload"`
+}
+
+func (b Block) Hash() (Hash, error) {
+	blockJson, err := json.Marshal(b)
+	if err != nil {
+		return Hash{}, err
+	}
+
+	return sha256.Sum256(blockJson), nil
 }
 
 type BlockHeader struct {
@@ -46,13 +55,4 @@ type BlockFS struct {
 
 func NewBlock(parent Hash, number uint64, time uint64, txs []Tx) Block {
 	return Block{BlockHeader{parent, number,time}, txs}
-}
-
-func (b Block) Hash() (Hash, error) {
-	blockJson, err := json.Marshal(b)
-	if err != nil {
-		return Hash{}, err
-	}
-
-	return sha256.Sum256(blockJson), nil
 }

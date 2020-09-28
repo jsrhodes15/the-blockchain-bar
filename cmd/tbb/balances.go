@@ -36,9 +36,8 @@ func balancesListCmd() *cobra.Command {
 			defer state.Close()
 
 			fmt.Printf("Accounts balances at %x:\n", state.LatestBlockHash())
-			fmt.Println("------------------")
+			fmt.Println("____________________")
 			fmt.Println("")
-
 			for account, balance := range state.Balances {
 				fmt.Println(fmt.Sprintf("%s: %d", account, balance))
 			}

@@ -10,17 +10,10 @@ import (
 )
 
 const flagDataDir = "datadir"
-const flagPort = "port"
 const flagIP = "ip"
+const flagPort = "port"
 
 const defaultDataDirname = ".tbb"
-
-func getDefaultDataDir() string {
-	homeDir := fs.GetHomeDir()
-	defaultDataDir := filepath.Join(homeDir, defaultDataDirname)
-
-	return defaultDataDir
-}
 
 func main() {
 	var tbbCmd = &cobra.Command{
@@ -33,10 +26,10 @@ func main() {
 
 	tbbCmd.AddCommand(migrateCmd())
 	tbbCmd.AddCommand(versionCmd)
+	tbbCmd.AddCommand(runCmd())
 	tbbCmd.AddCommand(balancesCmd())
 	// TODO refactor txCmd so we can add it back to list of commands
 	//tbbCmd.AddCommand(txCmd())
-	tbbCmd.AddCommand(runCmd())
 
 	err := tbbCmd.Execute()
 	if err != nil {
@@ -62,6 +55,13 @@ func getDataDirFromCmd(cmd *cobra.Command) string {
 	}
 
 	return fs.ExpandPath(dataDir)
+}
+
+func getDefaultDataDir() string {
+	homeDir := fs.GetHomeDir()
+	defaultDataDir := filepath.Join(homeDir, defaultDataDirname)
+
+	return defaultDataDir
 }
 
 func incorrectUsageErr() error {
