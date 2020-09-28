@@ -11,6 +11,7 @@ import (
 
 const flagDataDir = "datadir"
 const flagPort = "port"
+const flagIP = "ip"
 
 const defaultDataDirname = ".tbb"
 
@@ -33,7 +34,8 @@ func main() {
 	tbbCmd.AddCommand(migrateCmd())
 	tbbCmd.AddCommand(versionCmd)
 	tbbCmd.AddCommand(balancesCmd())
-	tbbCmd.AddCommand(txCmd())
+	// TODO refactor txCmd so we can add it back to list of commands
+	//tbbCmd.AddCommand(txCmd())
 	tbbCmd.AddCommand(runCmd())
 
 	err := tbbCmd.Execute()

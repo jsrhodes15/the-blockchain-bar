@@ -12,6 +12,7 @@ func runCmd() *cobra.Command{
 		Use: "run",
 		Short: "Launches the TBB node and its HTTP API.",
 		Run: func(cmd *cobra.Command, args []string) {
+			ip, _ := cmd.Flags().GetString(flagIP)
 			dataDir := getDataDirFromCmd(cmd)
 			port, _ :=  cmd.Flags().GetUint64(flagPort)
 
@@ -25,7 +26,7 @@ func runCmd() *cobra.Command{
 					true,
 				)
 
-			n := node.New(getDataDirFromCmd(cmd), port, bootstrap)
+			n := node.New(getDataDirFromCmd(cmd), ip, port, bootstrap)
 			err := n.Run()
 			if err != nil {
 				fmt.Println(err)
@@ -35,6 +36,7 @@ func runCmd() *cobra.Command{
 	}
 
 	addDefaultFlags(runCmd)
+	runCmd.Flags().String(flagIP, node.DefaultIP, "exposed IP address for communication with peers")
 	runCmd.Flags().Uint64P(flagPort, "p", node.DefaultHttpPort, "exposed HTTP port for communication with peers")
 	return runCmd
 }
