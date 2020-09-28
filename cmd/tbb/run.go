@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/jsrhodes15/the-blockchain-bar/node"
 	"github.com/spf13/cobra"
 	"os"
@@ -15,7 +16,8 @@ func runCmd() *cobra.Command{
 			ip, _ := cmd.Flags().GetString(flagIP)
 			port, _ :=  cmd.Flags().GetUint64(flagPort)
 
-			fmt.Printf("Launching TBB node and its HTTP API...\n\t- Configuration and data in %s directory.\n", getDataDirFromCmd(cmd))
+			fmt.Printf("Launching TBB node and its HTTP API...\n")
+			fmt.Printf("  *Configuration and data in %s directory.\n", getDataDirFromCmd(cmd))
 
 			bootstrap := node.NewPeerNode(
 				"127.0.0.1",
@@ -27,7 +29,7 @@ func runCmd() *cobra.Command{
 			n := node.New(getDataDirFromCmd(cmd), ip, port, bootstrap)
 			err := n.Run()
 			if err != nil {
-				fmt.Println(err)
+				color.Red("error: %s", err)
 				os.Exit(1)
 			}
 		},

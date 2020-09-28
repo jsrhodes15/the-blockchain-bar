@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/jsrhodes15/the-blockchain-bar/database"
 	"net/http"
 	"time"
@@ -28,12 +29,12 @@ func (n *Node) doSync() {
 			continue
 		}
 
-		fmt.Printf("Searching for new Peers and their Blocks and Peers: '%s'\n", peer.TcpAddress())
+		color.Green("Searching for new Peers and their Blocks and Peers: '%s'\n", peer.TcpAddress())
 
 		status, err := queryPeerStatus(peer)
 		if err != nil {
-			fmt.Printf("ERROR: %s\n", err)
-			fmt.Printf("Peer '%s' was removed from KnownPeers\n", peer.TcpAddress())
+			color.Magenta("ERROR: %s\n", err)
+			color.Magenta("Peer '%s' was removed from KnownPeers\n", peer.TcpAddress())
 
 			n.RemovePeer(peer)
 
@@ -42,19 +43,19 @@ func (n *Node) doSync() {
 
 		err = n.joinKnownPeers(peer)
 		if err != nil {
-			fmt.Printf("ERROR: %s\n", err)
+			color.Magenta("ERROR: %s\n", err)
 			continue
 		}
 
 		err = n.syncBlocks(peer, status)
 		if err != nil {
-			fmt.Printf("ERROR: %s\n", err)
+			color.Magenta("ERROR: %s\n", err)
 			continue
 		}
 
 		err = n.syncKnownPeers(peer, status)
 		if err != nil {
-			fmt.Printf("ERROR: %s\n", err)
+			color.Magenta("ERROR: %s\n", err)
 			continue
 		}
 	}
@@ -84,7 +85,7 @@ func (n *Node) syncBlocks(peer PeerNode, status StatusRes) error {
 		newBlocksCount = 1
 	}
 
-	fmt.Printf("Found %d new blocks from Peer %s\n", newBlocksCount, peer.TcpAddress())
+	color.Yellow("Found %d new blocks from Peer %s\n", newBlocksCount, peer.TcpAddress())
 
 	blocks, err := fetchBlocksFromPeer(peer, n.state.LatestBlockHash())
 	if err != nil {
@@ -97,7 +98,7 @@ func (n *Node) syncBlocks(peer PeerNode, status StatusRes) error {
 func (n *Node) syncKnownPeers(peer PeerNode, status StatusRes) error {
 	for _, statusPeer := range status.KnownPeers {
 		if !n.IsKnownPeer(statusPeer) {
-			fmt.Printf("Found new Peer %s\n", statusPeer.TcpAddress())
+			color.Cyan("Found new Peer %s\n", statusPeer.TcpAddress())
 
 			n.AddPeer(statusPeer)
 		}
@@ -164,7 +165,7 @@ func queryPeerStatus(peer PeerNode) (StatusRes, error) {
 }
 
 func fetchBlocksFromPeer(peer PeerNode, fromBlock database.Hash) ([]database.Block, error) {
-	fmt.Printf("Importing blocks from Peer %s...\n", peer.TcpAddress())
+	color.Yellow("Importing blocks from Peer %s...", peer.TcpAddress())
 
 	url := fmt.Sprintf(
 		"http://%s%s?%s=%s",

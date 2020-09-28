@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/jsrhodes15/the-blockchain-bar/database"
 	"net/http"
 )
@@ -61,7 +62,7 @@ func NewPeerNode(ip string, port uint64, isBootstrap bool, connected bool) PeerN
 
 func (n *Node) Run() error {
 	ctx := context.Background()
-	fmt.Println(fmt.Sprintf("Listening on: %s:%d", n.ip, n.port))
+	color.Green("Listening on: %s:%d", n.ip, n.port)
 
 	state, err := database.NewStateFromDisk(n.dataDir)
 	if err != nil {
