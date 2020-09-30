@@ -22,6 +22,10 @@ func ExpandPath(p string) string {
 	return path.Clean(os.ExpandEnv(p))
 }
 
+func RemoveDir(path string) error {
+	return os.RemoveAll(path)
+}
+
 func GetHomeDir() string {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
