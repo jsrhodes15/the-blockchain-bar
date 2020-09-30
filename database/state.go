@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"sort"
 )
 
 type State struct {
@@ -88,7 +89,7 @@ func (s *State) AddBlocks(blocks []Block) error {
 func (s *State) AddBlock(b Block) (Hash, error) {
 	pendingState := s.copy()
 	// Validate block meta + payload. Replays transactions to verify balances
-	err := applyBlock(b, pendingState)
+	err := applyBlock(b, &pendingState)
 	if err != nil {
 		return Hash{}, err
 	}
@@ -157,7 +158,7 @@ func (s *State) copy() State {
 
 // verifies if a block can be added to the blockchain
 // block metadata are verified as well as transactions within (sufficient balances, etc).
-func applyBlock(b Block, s State) error {
+func applyBlock(b Block, s *State) error {
 	nextExpectedBlockNumber := s.latestBlock.Header.Number + 1
 
 	if s.hasGenesisBlock && b.Header.Number != nextExpectedBlockNumber {
@@ -185,10 +186,19 @@ func applyBlock(b Block, s State) error {
 		return fmt.Errorf("invalid block %x", hash)
 	}
 
-	return applyTXs(b.TXs, &s)
+	err = applyTXs(b.TXs, s)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func applyTXs(txs []Tx, s *State) error {
+	sort.Slice(txs, func(i, j int) bool {
+		return txs[i].Time < txs[j].Time
+	})
+
 	for _, tx := range txs {
 		err := applyTx(tx, s)
 		if err != nil {

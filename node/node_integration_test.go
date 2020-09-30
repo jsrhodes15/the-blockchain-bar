@@ -21,12 +21,13 @@ func TestNode_Run(t *testing.T) {
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
 	err = n.Run(ctx)
-	if err.Error() != "http: Server closed" {
-		t.Fatal("node server was suppose to close after 5s")
+	if err != nil {
+		t.Fatalf("ERROR: node was supposed to close after 5s\n%s", err)
 	}
 }
 
 func TestNode_Mining(t *testing.T) {
+	// Remove the test directory if it already exists
 	datadir := getTestDataDirPath()
 	err := fs.RemoveDir(datadir)
 	if err != nil {
@@ -38,14 +39,14 @@ func TestNode_Mining(t *testing.T) {
 
 	go func() {
 		time.Sleep(time.Second * 1)
-		tx := database.NewTx("andrej", "babayaga", 1, "")
+		tx := database.NewTx("jrhodes", "babayaga", 1, "")
 		myself := NewPeerNode("127.0.0.1", 8085, false, true)
 		_ = n.AddPendingTX(tx, myself)
 	}()
 
 	go func() {
 		time.Sleep(time.Second * 30)
-		tx := database.NewTx("andrej", "babayaga", 2, "")
+		tx := database.NewTx("jrhodes", "babayaga", 2, "")
 		myself := NewPeerNode("127.0.0.1", 8085, false, true)
 		_ = n.AddPendingTX(tx, myself)
 	}()

@@ -67,7 +67,7 @@ func TestMineWithTimeout(t *testing.T) {
 func createRandomPendingBlock() PendingBlock {
 	return NewPendingBlock(
 		database.Hash{},
-		0,
+		1,
 		[]database.Tx{
 			database.NewTx("jrhodes", "jrhodes", 3, ""),
 			database.NewTx("jrhodes", "jrhodes", 700, "reward"),

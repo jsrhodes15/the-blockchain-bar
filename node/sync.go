@@ -9,7 +9,7 @@ import (
 )
 
 func (n *Node) sync(ctx context.Context) error {
-	ticker := time.NewTicker(time.Second * 10)
+	ticker := time.NewTicker(45 * time.Second)
 
 	for {
 		select {
@@ -85,7 +85,7 @@ func (n *Node) syncBlocks(peer PeerNode, status StatusRes) error {
 		return nil
 	}
 
-	// Display found 1 new block if we sync the genesis block (block0)
+	// Display found 1 new block if we sync the genesis block (block 0)
 	newBlocksCount := status.Number - localBlockNumber
 	if localBlockNumber == 0 && status.Number == 0 {
 		newBlocksCount = 1
