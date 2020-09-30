@@ -6,14 +6,14 @@ import (
 )
 
 const Major = "0"
-const Minor = "8"
+const Minor = "9"
 const Patch = "0"
-const Description = "Proof of Work"
+const Description = "Proof of Work Reward"
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Describes version.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Version: %s.%s.%s-beta %s", Major, Minor, Patch, Description)
+		fmt.Println(fmt.Sprintf("Version: %s.%s.%s-beta %s", Major, Minor, Patch, Description))
 	},
 }

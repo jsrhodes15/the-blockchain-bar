@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/spf13/cobra"
 	"github.com/jsrhodes15/the-blockchain-bar/database"
 	"github.com/jsrhodes15/the-blockchain-bar/node"
-	"github.com/spf13/cobra"
 	"time"
 )
 
@@ -14,6 +14,7 @@ var migrateCmd = func() *cobra.Command {
 		Use:   "migrate",
 		Short: "Migrates the blockchain database according to new business rules.",
 		Run: func(cmd *cobra.Command, args []string) {
+			miner, _ := cmd.Flags().GetString(flagMiner)
 			ip, _ := cmd.Flags().GetString(flagIP)
 			port, _ := cmd.Flags().GetUint64(flagPort)
 
@@ -21,10 +22,11 @@ var migrateCmd = func() *cobra.Command {
 				"127.0.0.1",
 				8080,
 				true,
+				database.NewAccount("jrhodes"),
 				false,
-				)
+			)
 
-			n := node.New(getDataDirFromCmd(cmd), ip, port, peer)
+			n := node.New(getDataDirFromCmd(cmd), ip, port, database.NewAccount(miner), peer)
 
 			n.AddPendingTX(database.NewTx("jrhodes", "jrhodes", 3, ""), peer)
 			n.AddPendingTX(database.NewTx("jrhodes", "meads", 2000, ""), peer)
@@ -56,6 +58,7 @@ var migrateCmd = func() *cobra.Command {
 	}
 
 	addDefaultFlags(migrateCmd)
+	migrateCmd.Flags().StringP(flagMiner, "m", node.DefaultMiner, "miner account of this node to receive block rewards" )
 	migrateCmd.Flags().String(flagIP, node.DefaultIP, "exposed IP for communication with peers")
 	migrateCmd.Flags().Uint64P(flagPort, "p", node.DefaultHttpPort, "exposed HTTP port for communication with peers")
 

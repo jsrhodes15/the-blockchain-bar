@@ -28,10 +28,10 @@ type TxAddRes struct {
 }
 
 type StatusRes struct {
-	Hash       database.Hash `json:"block_hash"`
-	Number     uint64        `json:"block_number"`
-	KnownPeers KnownPeers    `json:"peers_known"`
-	PendingTXs []database.Tx `json:"pending_txs"`
+	Hash       database.Hash       `json:"block_hash"`
+	Number     uint64              `json:"block_number"`
+	KnownPeers map[string]PeerNode `json:"peers_known"`
+	PendingTXs []database.Tx       `json:"pending_txs"`
 }
 
 type SyncRes struct {
@@ -43,7 +43,7 @@ type AddPeerRes struct {
 	Error   string `json:"error"`
 }
 
-func listBalancesHandler(w http.ResponseWriter, req *http.Request, state *database.State) {
+func listBalancesHandler(w http.ResponseWriter, r *http.Request, state *database.State) {
 	writeRes(w, BalancesRes{state.LatestBlockHash(), state.Balances})
 }
 
@@ -98,6 +98,7 @@ func syncHandler(w http.ResponseWriter, r *http.Request, node *Node) {
 func addPeerHandler(w http.ResponseWriter, r *http.Request, node *Node) {
 	peerIP := r.URL.Query().Get(endpointAddPeerQueryKeyIP)
 	peerPortRaw := r.URL.Query().Get(endpointAddPeerQueryKeyPort)
+	minerRaw := r.URL.Query().Get(endpointAddPeerQueryKeyMiner)
 
 	peerPort, err := strconv.ParseUint(peerPortRaw, 10, 32)
 	if err != nil {
@@ -105,7 +106,7 @@ func addPeerHandler(w http.ResponseWriter, r *http.Request, node *Node) {
 		return
 	}
 
-	peer := NewPeerNode(peerIP, peerPort, false, true)
+	peer := NewPeerNode(peerIP, peerPort, false, database.NewAccount(minerRaw), true)
 
 	node.AddPeer(peer)
 

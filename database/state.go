@@ -10,7 +10,7 @@ import (
 )
 
 type State struct {
-	Balances  map[Account]uint
+	Balances map[Account]uint
 
 	dbFile *os.File
 
@@ -35,8 +35,8 @@ func NewStateFromDisk(dataDir string) (*State, error) {
 		balances[account] = balance
 	}
 
-	dbFilePath := getBlocksDbFilePath(dataDir)
-	f, err := os.OpenFile(dbFilePath, os.O_APPEND|os.O_RDWR, 0600)
+	dbFilepath := getBlocksDbFilePath(dataDir)
+	f, err := os.OpenFile(dbFilepath, os.O_APPEND|os.O_RDWR, 0600)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func NewStateFromDisk(dataDir string) (*State, error) {
 			return nil, err
 		}
 
-		err = applyTXs(blockFs.Value.TXs, state)
+		err = applyBlock(blockFs.Value, state)
 		if err != nil {
 			return nil, err
 		}
@@ -145,6 +145,7 @@ func (s *State) Close() error {
 func (s *State) copy() State {
 	// For validation purposes, we want to make a copy of State, without any pointers to the original State{}
 	c := State{}
+	c.hasGenesisBlock = s.hasGenesisBlock
 	c.latestBlock = s.latestBlock
 	c.latestBlockHash = s.latestBlockHash
 	c.Balances = make(map[Account]uint)
@@ -162,19 +163,11 @@ func applyBlock(b Block, s *State) error {
 	nextExpectedBlockNumber := s.latestBlock.Header.Number + 1
 
 	if s.hasGenesisBlock && b.Header.Number != nextExpectedBlockNumber {
-		return fmt.Errorf(
-			"next expected block must be '%d' not '%d'",
-			nextExpectedBlockNumber,
-			b.Header.Number,
-		)
+		return fmt.Errorf("next expected block must be '%d' not '%d'", nextExpectedBlockNumber, b.Header.Number)
 	}
 
 	if s.hasGenesisBlock && s.latestBlock.Header.Number > 0 && !reflect.DeepEqual(b.Header.Parent, s.latestBlockHash) {
-		return fmt.Errorf(
-			"next block parent hash must be '%x' not '%x'",
-			s.latestBlockHash,
-			b.Header.Parent,
-		)
+		return fmt.Errorf("next block parent hash must be '%x' not '%x'", s.latestBlockHash, b.Header.Parent)
 	}
 
 	hash, err := b.Hash()
@@ -183,13 +176,15 @@ func applyBlock(b Block, s *State) error {
 	}
 
 	if !IsBlockHashValid(hash) {
-		return fmt.Errorf("invalid block %x", hash)
+		return fmt.Errorf("invalid block hash %x", hash)
 	}
 
 	err = applyTXs(b.TXs, s)
 	if err != nil {
 		return err
 	}
+
+	s.Balances[b.Header.Miner] += BlockReward
 
 	return nil
 }
@@ -205,21 +200,13 @@ func applyTXs(txs []Tx, s *State) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
 func applyTx(tx Tx, s *State) error {
-	if tx.IsReward() {
-		s.Balances[tx.To] += tx.Value
-		return nil
-	}
-
 	if tx.Value > s.Balances[tx.From] {
-		return fmt.Errorf("bad TX. Sender '%s' balance is %d TBB. Tx cost is %d",
-			tx.From,
-			s.Balances[tx.From],
-			tx.Value,
-		)
+		return fmt.Errorf("wrong TX. Sender '%s' balance is %d TBB. Tx cost is %d TBB", tx.From, s.Balances[tx.From], tx.Value)
 	}
 
 	s.Balances[tx.From] -= tx.Value

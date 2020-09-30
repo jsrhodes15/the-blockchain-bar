@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"github.com/jsrhodes15/the-blockchain-bar/fs"
 	"os"
 	"path/filepath"
-
-	"github.com/spf13/cobra"
 )
 
 const flagDataDir = "datadir"
+const flagMiner = "miner"
 const flagIP = "ip"
 const flagPort = "port"
 
@@ -20,7 +20,6 @@ func main() {
 		Use:   "tbb",
 		Short: "The Blockchain Bar CLI",
 		Run: func(cmd *cobra.Command, args []string) {
-
 		},
 	}
 
@@ -43,16 +42,12 @@ func addDefaultFlags(cmd *cobra.Command) {
 		flagDataDir,
 		"d",
 		getDefaultDataDir(),
-		"Absolute path where tbb data is stored",
+		"Absolute path to node data dir where DB is/will be stored",
 	)
 }
 
 func getDataDirFromCmd(cmd *cobra.Command) string {
-	dataDir, err := cmd.Flags().GetString(flagDataDir)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	dataDir, _ := cmd.Flags().GetString(flagDataDir)
 
 	return fs.ExpandPath(dataDir)
 }
