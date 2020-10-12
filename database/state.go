@@ -20,7 +20,7 @@ type State struct {
 }
 
 func NewStateFromDisk(dataDir string) (*State, error) {
-	err := initDataDirIfNotExists(dataDir)
+	err := initDataIfNotExists(dataDir)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (s *State) copy() State {
 	return c
 }
 
-// verifies if a block can be added to the blockchain
+// verifies if a block can be added to the blockchain (this is where we verify work done by other peers, too)
 // block metadata are verified as well as transactions within (sufficient balances, etc).
 func applyBlock(b Block, s *State) error {
 	nextExpectedBlockNumber := s.latestBlock.Header.Number + 1

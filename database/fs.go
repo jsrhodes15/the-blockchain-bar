@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func initDataDirIfNotExists(dataDir string) error {
+func initDataIfNotExists(dataDir string) error {
 	if fileExist(getGenesisJsonFilePath(dataDir)) {
 		return nil
 	}
